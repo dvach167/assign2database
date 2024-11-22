@@ -1,9 +1,17 @@
+DROP TABLE IF EXISTS Building;
+DROP TABLE IF EXISTS Apartment;
+DROP TABLE IF EXISTS Guest;
+DROP TABLE IF EXISTS Booking;
+
+
+
+
 CREATE TABLE Building(
 	BuildingID INT PRIMARY KEY AUTO_INCREMENT,
 	Manager VARCHAR(20),
 	Address VARCHAR(100),
-	Name VARCHAR(50);
-)
+	Name VARCHAR(50)
+);
 
 
 CREATE TABLE Apartment(
@@ -11,14 +19,14 @@ CREATE TABLE Apartment(
 	ApartNum INT,
 	ApartType VARCHAR(20),
 	BuildingID INT,
-	CONSTRAINT BuildingID_FK FOREIGN KEY (BuildingID) REFERENCES Building(BuildingID);
-) 
+	CONSTRAINT BuildingID_FK FOREIGN KEY (BuildingID) REFERENCES Building(BuildingID)
+);
 
 CREATE TABLE Guest(
 	GuestID INT PRIMARY KEY AUTO_INCREMENT,
 	FirstName VARCHAR(20),
-	LastName VARCHAR(20);
-)
+	LastName VARCHAR(20)
+);
 
 
 CREATE TABLE Booking(
@@ -28,5 +36,5 @@ CREATE TABLE Booking(
 	DateStart DATE,
 	DateEnd DATE,
 	CONSTRAINT ApartID_FK FOREIGN KEY (ApartID) REFERENCES Apartment(ApartID),
-	CONSTRAINT GuestID_FK FOREIGN KEY (GuestID) REFERENCES Guest(GuestID);
-)
+	CONSTRAINT GuestID_FK FOREIGN KEY (GuestID) REFERENCES Guest(GuestID)
+);
