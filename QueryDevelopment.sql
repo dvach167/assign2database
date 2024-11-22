@@ -16,6 +16,10 @@ JOIN Building AS B ON A.BuildingID = B.BuildingID
 GROUP BY B.BuildingID, B.Name, B.Address
 ORDER BY BookedApartments DESC;
 
+-- Requirement 4
+SELECT (DATEDIFF(EndDate, StartDate)*100) AS StayCost
+FROM Booking;
+
 -- Requirement 5
 -- Find guests who have made more than 2 bookings.
 SELECT G.GuestID, G.FirstName, G.LastName, COUNT(Bk.BookID) AS BookingCount
