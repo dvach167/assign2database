@@ -1,23 +1,29 @@
 
--- Requirement 1, 
+-- Requirement 1
 -- Retrieve the details of all apartments in a specific building, sorted by apartment type.
-SELECT A.ApartNum, A.ApartType, B.Name, B.Address
+SELECT A.ApartNum, A.ApartType, B.Name AS BuildingName, B.Address
 FROM Apartment AS A JOIN Building AS B
 ON A.BuildingID = B.BuildingID
 WHERE A.BuildingID = 1
 ORDER BY A.ApartType;
 
--- 2
-SELECT A.ApartNum, A.ApartType, BD.Name, BD.Address
+-- Requirement 2
+-- Find all available apartments (not booked during a given date range).
+SELECT A.ApartID, A.ApartNum, A.ApartType, BD.Name AS BuildingName, BD.Address
 FROM Apartment AS A
-JOIN Booking BK ON A.ApartID = BK.ApartID
-JOIN Building BD ON A.BuildingID = BD.BuildingID
-WHERE NOT ('2024-11-21' BETWEEN BK.DateStart AND BK.DateEnd);
+JOIN Building AS BD ON A.BuildingID = BD.BuildingID
+WHERE A.ApartID NOT IN (
+	SELECT BK.ApartID
+	FROM Booking AS BK
+	WHERE ('2024-12-03' BETWEEN BK.DateStart AND BK.DateEnd
+	OR '2024-12-05' BETWEEN BK.DateStart AND BK.DateEnd
+	OR BK.DateStart BETWEEN '2024-12-03' AND '2024-12-05')
+);
 
 
 -- Requirement 3
 -- List the buildings with the highest number of booked apartments.
-SELECT B.BuildingID, B.Name AS BuildingName, B.Address AS BuildingAddress, COUNT(DISTINCT Bk.ApartID) AS BookedApartments
+SELECT B.BuildingID, B.Name AS BuildingName, B.Address, COUNT(DISTINCT Bk.BookID) AS BookedApartments
 FROM Booking AS Bk
 JOIN Apartment AS A ON Bk.ApartID = A.ApartID
 JOIN Building AS B ON A.BuildingID = B.BuildingID
@@ -29,8 +35,9 @@ ORDER BY BookedApartments DESC;
 SELECT b.BuildingID, b.Name, SUM(DATEDIFF(bo.DateEnd , bo.DateStart) * 100) AS TotalRevenue
 FROM Building b
 JOIN Apartment a ON b.BuildingID = a.BuildingID
-JOIN Booking bo ON a.ApartID = bo.ApartID 
-GROUP BY b.BuildingID, b.Name; 
+JOIN Booking bo ON a.ApartID = bo.ApartID
+GROUP BY b.BuildingID, b.Name
+ORDER BY TotalRevenue DESC;
 
 -- Requirement 5
 -- Find guests who have made more than 2 bookings.
@@ -38,22 +45,24 @@ SELECT G.GuestID, G.FirstName, G.LastName, COUNT(Bk.BookID) AS BookingCount
 FROM Guest AS G
 JOIN Booking AS Bk ON G.GuestID = Bk.GuestID
 GROUP BY G.GuestID, G.FirstName, G.LastName
-HAVING COUNT(Bk.BookID) > 2;
+HAVING BookingCount > 2;
 
 
--- 6
+-- Requirement 6
+-- List all bookings that are currently active (ongoing based on the current date).
 SELECT BK.BookID, A.ApartNum, A.ApartType, BD.Name, BD.Address
 FROM Booking AS BK
 JOIN Apartment AS A ON BK.ApartID = A.ApartID
 JOIN Building AS BD ON A.BuildingID = BD.BuildingID
-WHERE BK.DateStart < CURRENT_DATE() AND BK.DateEnd > CURRENT_DATE();
+WHERE '2024-12-03' BETWEEN BK.DateStart AND BK.DateEnd;
 
--- 7
+-- Requirement 7
+-- Generate a report showing booking details (apartment, guest name, booking status) for a specific date range.
 SELECT 
     A.ApartNum, 
     CONCAT(G.FirstName, ' ', G.LastName) AS GuestName, 
     CASE 
-        WHEN '2024-01-01' BETWEEN BK.DateStart AND BK.DateEnd THEN 'Booked'
+        WHEN '2024-12-03' BETWEEN BK.DateStart AND BK.DateEnd THEN 'Booked'
         ELSE 'Available'
     END AS BookingStatus
 FROM Apartment AS A
